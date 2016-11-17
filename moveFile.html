@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            height: 100%;
+        }
+        #wrap {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        header {
+            height: 80px;
+            padding: 10px 0;
+            border-bottom: 1px solid #000;
+        }
+        #files {
+            position: relative;
+            left: 0;
+            width: 100%;
+            height:100%;
+            overflow: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .add {
+            width: 60px;
+            height: 60px;
+            float: left;
+            background: url(img/add.png) no-repeat;
+            background-size: cover;
+            margin: 15px 0 0 15px;
+        }
+        .remove {
+            width: 60px;
+            height: 60px;
+            float: right;
+            background: url(img/remove.png) no-repeat;
+            background-size: cover;
+            margin: 15px 15px 0 0;
+        }
+        .file {
+            width: 80px;
+            height: 90px;
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0);
+            position: absolute;
+            float: left;
+        }
+        .fileActive {
+            border-color: rgba(8, 247, 205, 1);
+            background: rgba(8, 247, 205, .1);
+        }
+        .file .ico {
+            margin: 10px auto 0;
+            width: 60px;
+            height: 60px;
+            background: url(img/file.png) no-repeat;
+            background-size: cover;
+        }
+        .file .check {
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: none;
+        }
+        .fileActive .check {
+            display: block;
+
+        }
+        .file span {
+            display: block;
+            font: 12px/20px "宋体",Arial;
+            text-align: center;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .file .text {
+            position: absolute;
+            left: 10px;
+            top: 80px;
+            width: 80px;
+            height: 20px;
+            box-sizing: border-box;
+            padding: 1px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <section id="wrap">
+        <header>
+            <a href="javaScript:;" class="add"></a>
+            <a href="javaScript:;" class="remove"></a>
+        </header>
+        <div id="files">
+            <!--<div class="file">
+                <div class="ico"></div>
+                <input type="checkbox" class="check">
+                <span>新建文件夹</span>
+                <input type="text" class="text">
+            </div>-->
+        </div>
+    </section>
+    <script src="4.bangding.js"></script>
+<script>
+    (function(d){
+        var add = d.querySelector(".add");
+        var remove = d.querySelector(".remove");
+        var files = d.getElementById("files");
+        var num = 0;
+        var numTop=0;
+        add.onclick = function(){
+            var file = d.createElement("div");
+            var ico = d.createElement("div");
+            var check = d.createElement("input");
+            var span = d.createElement("span");
+            var text = d.createElement("input");
+            file.className = "file";
+            ico.className = "ico";
+            check.type = "checkbox";
+            check.className = "check";
+            span.innerHTML = getName();
+            text.type = "text";
+            text.className = "text";
+            text.maxlength = 6;
+            file.appendChild(ico);
+            file.appendChild(check);
+            file.appendChild(span);
+            file.appendChild(text);
+            files.appendChild(file);
+            file.style.left = 0 + num * 100 +'px';
+            file.style.top = 0 + numTop * 100 +'px';
+            num++;
+            if(num % 12 ==0 && num > 0){
+                numTop++;
+                num = 0;
+            }
+
+            file.onmouseover = function(){
+                this.className = "file fileActive";
+            };
+            file.onmouseout = function(){
+                if(!check.checked){
+                    this.className = "file";
+                }
+            };
+            span.onclick = function(){
+                text.style.display = "block";
+                text.value = span.innerHTML;
+                text.focus();
+            };
+            text.onblur = function(){
+                if(text.value.length > 7){
+                    text.focus();
+                    alert("不能超过7个  你写多了");
+                    return;
+                }
+                if(text.value == ""){
+                    text.style.display = "none";
+                    return;
+                }
+                if(hasName(text.value)){
+                    text.style.display = "none";
+                    span.innerHTML = text.innerHTML;
+                }else {
+                    text.focus();
+                    alert("重名了  我再换一个")
+                }
+                text.style.display = "none";
+                span.innerHTML = text.value;
+            };
+            remove.onclick = function(){
+                for(var i=files.children.length-1;i>=0;i--){
+                    if(files.children[i].className == "file fileActive"){
+                        files.removeChild(files.children[i]);
+                    }
+                }
+            };
+            function hasName(newName){
+                for(var i=0;i<files.children.length;i++){
+                    var name = files.children[i].children[2].innerHTML;
+                    if(name == newName){
+                        return false;
+                    }
+                }
+                return true;
+            }
+            function getName(){
+                var arr = [];
+                for(var i=0;i<files.children.length;i++){
+                    var name = files.children[i].children[2].innerHTML;
+                    if(name.substring(0,5)=="新建文件夹"
+                            && !isNaN(name.substring(5)) ||name == "新建文件夹"
+
+                    ){
+                        var nub = parseInt(name.substring(5))-1;
+                        nub = isNaN(nub)?0:nub;
+                        arr[nub] = name;
+                    }
+                }
+                if(!arr[0]){
+                    return "新建文件夹";
+                }
+                for (var i=0;i<arr.length;i++){
+                    if(!arr[i]){
+                        return "新建文件夹"+(i+1);
+                    }
+                }
+                return "新建文件夹" + (arr.length+1);
+            }
+
+            /*file.onmousedown = function(ev){
+                var filesX = ev.pageX - file.offsetLeft;
+                var filesY = ev.pageY - file.offsetTop;
+                document.onmousemove = function(ev){
+                    file.style.left = ev.pageX - filesX + "px";
+                    file.style.top  =ev.pageY - filesY + "px";
+                };
+                document.onmouseup = function(){
+                    document.onmousemove = document.onmouseup = null;
+                }
+            }*/
+            file.addEventListener("mousedown",fnDown);
+            function fnDown(ev){
+                var filesX = ev.pageX - file.offsetLeft;
+                var filesY = ev.pageY - file.offsetTop;
+                var file1 = document.createElement('div');
+                var ico = d.createElement("div");
+                var span = d.createElement("span");
+                span.innerHTML = file.children[2].innerHTML;
+                ico.className = 'ico';
+                span.className = 'span';
+                file1.appendChild(ico);
+                file1.appendChild(span);
+                //file1.style.position = 'absolute';
+                file1.className = 'file';
+                //file1.style.background = 'green';
+                file1.style.left = file.offsetLeft + 'px';
+                file1.style.top = file.offsetTop + 'px';
+                files.appendChild(file1);
+                document.addEventListener("mousemove",fnMove);
+                document.addEventListener("mouseup",fnUp);
+                function fnMove(ev){
+                    file.className = "file fileActive";
+                    file1.style.left = ev.pageX - filesX + "px";
+                    file1.style.top  =ev.pageY - filesY + "px";
+                }
+                function fnUp(){
+                    file.style.left = file1.offsetLeft+"px";
+                    file.style.top = file1.offsetTop+"px";
+                    files.removeChild(file1);
+                    document.removeEventListener("mousemove",fnMove);
+                    document.removeEventListener("mouseup",fnUp);
+                }
+                return false;
+            }
+        };
+
+    })(document)
+</script>
+</body>
+</html>
